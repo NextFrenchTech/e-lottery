@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loterie</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app" role="application" aria-label="Machine à sous">
+
+    <!-- Barre du haut -->
+    <header class="topbar">
+      <h1>Lotterie</h1>
+      <div class="bank">
+        <div>
+          Solde: <strong id="balance" aria-live="polite">—</strong>
+        </div>
+      </div>
+    </header>
+
+    <!-- Plateau -->
+    <section class="slot" aria-label="Rouleaux">
+      <div class="reel" data-reel="0" aria-hidden="true"></div>
+      <div class="reel" data-reel="1" aria-hidden="true"></div>
+      <div class="reel" data-reel="2" aria-hidden="true"></div>
+      <!-- Ligne payante du milieu -->
+      <div class="payline payline-2" aria-hidden="true"></div>
+    </section>
+
+    <!-- Commandes -->
+    <section class="controls">
+      <button id="spin" class="cta" aria-keyshortcuts="Space">Lancer</button>
+      <label class="auto">
+        <input type="checkbox" id="autoplay" />
+        Auto (∞)
+      </label>
+    </section>
+
+    <!-- Statut -->
+    <section class="status" id="status" aria-live="polite" aria-atomic="true">
+      Initialisation…
+    </section>
+
+    <!-- Tableau des lots (fermé par défaut) -->
+    <details class="paytable">
+      <summary>Tableau des lots</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbole</th>
+            <th>Lot</th>
+            <th>Gagné</th>
+          </tr>
+        </thead>
+        <tbody id="paytable-body"></tbody>
+      </table>
+
+      <!-- Lien vers la page des règles -->
+      <div class="rules-link">
+        <a href="rules.html" target="_blank">Voir le règlement du jeu</a>
+      </div>
+    </details>
+  </main>
+
+  <!-- Modale de réinitialisation -->
+  <div id="reset-modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-labelledby="reset-title" aria-modal="true">
+      <h2 id="reset-title">Réinitialiser les crédits</h2>
+      <p>
+        Merci de contacter un responsable pour rétablir les crédits et débloquer l’accès.
+      </p>
+
+      <form id="reset-form">
+        <label class="field">
+          <span>Mot de passe</span>
+          <input
+            type="password"
+            id="reset-pass"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+
+        <div class="modal-actions">
+          <!-- Bouton réinitialiser rouge -->
+          <button type="submit" class="cta danger">Réinitialiser</button>
+          <button type="button" id="reset-cancel" class="ghost">Annuler</button>
+        </div>
+
+        <p id="reset-error" class="error" aria-live="polite" hidden>
+          Mot de passe incorrect.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
