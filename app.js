@@ -3,8 +3,11 @@
  ***********************/
 const ROWS = 3, REELS = 3;
 const SPIN_BASE_MS = 1800, SPIN_DELTA_MS = 180; // timings des rouleaux
-const START_BALANCE = 50;
+const START_BALANCE = 100;
 const PASS_DEFAULT = "test"; // mot de passe par défaut
+
+// Redirection quand le solde arrive à 0 (bouton principal)
+const EXIT_URL = "https://nextfrenchtech.github.io/e-scratch/";
 
 // Symboles (4,5,6,10,13,15 exclus volontairement → commentés)
 const SYMBOLS = [
@@ -61,7 +64,7 @@ const STORAGE = {
   LOCKED: NS + "locked",
   PASS:   NS + "pass",
   WON:    NS + "won",       // Set d’indices gagnés (persistant)
-  DATE:   NS + "date",      // yyyy-mm-dd (pour réinit quotidienne des crédits)
+  DATE:   NS + "date",      // yyyy-mm-dd (réinit quotidienne crédits)
   WINS:   NS + "wonCount"   // compteur de gains du jour
 };
 
@@ -71,6 +74,14 @@ const STORAGE = {
 const toIntOrNull = s => { const n=parseInt(s,10); return Number.isFinite(n)?n:null; };
 const easeInOutCubic = t => t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
 const todayStr = () => new Date().toISOString().slice(0,10);
+function isReload(){
+  try {
+    const nav = performance.getEntriesByType("navigation")[0];
+    return nav && (nav.type === "reload" || nav.type === "back_forward");
+  } catch {
+    return performance && performance.navigation && performance.navigation.type === 1;
+  }
+}
 
 /***********************
  *  TIRAGE
@@ -108,7 +119,7 @@ const reels     = [...document.querySelectorAll(".reel")];
 const paytableBody = document.getElementById("paytable-body");
 const middlePaylineEl = document.querySelector(".payline-2");
 
-// Modale reset
+// Modale reset (affichée au reload si solde=0)
 const resetModal  = document.getElementById("reset-modal");
 const resetForm   = document.getElementById("reset-form");
 const resetPass   = document.getElementById("reset-pass");
@@ -244,9 +255,10 @@ function updatePrizeChecks(){
 function updateSpinButtonVisual(){
   if (!spinBtn) return;
   if (locked){
+    // Bouton rouge + "À bientôt" + intention de sortie
     spinBtn.classList.add("danger");
-    spinBtn.textContent = "Réinitialiser";
-    spinBtn.title = "Cliquez pour réinitialiser vos crédits";
+    spinBtn.textContent = "À bientôt";
+    spinBtn.title = "Cliquez pour quitter";
   } else {
     spinBtn.classList.remove("danger");
     spinBtn.textContent = "Lancer";
@@ -364,7 +376,11 @@ async function spinReelSmooth(reelEl, targetCol, durationMs){
  *  JEU
  ***********************/
 async function doSpin(){
-  if (locked){ showResetModal(); return; }
+  // Si verrouillé (solde=0) → le bouton sert à QUITTER
+  if (locked){
+    window.location.href = EXIT_URL;
+    return;
+  }
   if (busy) return;
   if (balance<1){ setStatus("Mise supérieure au solde.","error"); return; }
 
@@ -412,7 +428,7 @@ async function doSpin(){
     setStatus("Pas de lot pour cette fois !");
   }
 
-  // fin de crédits → verrouillage
+  // fin de crédits → verrouillage (bouton devient "À bientôt")
   if (balance<=0){
     balance=0; locked=true; autoplay=false; if (autoplayChk) autoplayChk.checked=false;
     saveState(); updateBank(); setStatus("Retente ta chance la prochaine fois !","error");
@@ -425,7 +441,7 @@ async function doSpin(){
 }
 
 /***********************
- *  MODALE RESET
+ *  MODALE RESET (au reload uniquement, ou via ton propre déclencheur)
  ***********************/
 function showResetModal(){
   if (!resetModal) return;
@@ -475,6 +491,11 @@ function tryResetWithPassword(pass){
   setStatus(locked ? "Retente ta chance la prochaine fois !" : "Bonne chance !", locked ? "error" : "info");
   if (spinBtn) spinBtn.disabled = busy || (!locked && balance<1);
 
+  // ✨ Afficher la modale au rechargement si jeu verrouillé (solde=0)
+  if (isReload() && balance === 0 && localStorage.getItem(STORAGE.LOCKED) === "1") {
+    showResetModal();
+  }
+
   // resize / orientation
   window.addEventListener("resize", ()=>{ setAllReelsCellVar(); positionPayline(); }, { passive:true });
 })();
@@ -492,6 +513,7 @@ if (autoplayChk){
   });
 }
 if (resetForm){
+  // La modale peut être utilisée au reload (ci-dessus) ou depuis un bouton admin de ton choix
   resetForm.addEventListener("submit", e=>{ e.preventDefault(); tryResetWithPassword(resetPass.value); });
 }
 if (resetCancel){
