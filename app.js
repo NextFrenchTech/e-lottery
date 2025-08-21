@@ -3,7 +3,7 @@
  ***********************/
 const ROWS = 3, REELS = 3;
 const SPIN_BASE_MS = 1800, SPIN_DELTA_MS = 180; // timings des rouleaux
-const START_BALANCE = 100;
+const START_BALANCE = 6;
 const PASS_DEFAULT = "test"; // mot de passe par défaut
 
 // Redirection quand le solde arrive à 0 (bouton principal)
@@ -64,7 +64,7 @@ const STORAGE = {
   LOCKED: NS + "locked",
   PASS:   NS + "pass",
   WON:    NS + "won",       // Set d’indices gagnés (persistant)
-  DATE:   NS + "date",      // yyyy-mm-dd (réinit quotidienne crédits)
+  DATE:   NS + "date",      // yyyy-mm-dd (réinit quotidienne)
   WINS:   NS + "wonCount"   // compteur de gains du jour
 };
 
@@ -169,23 +169,26 @@ function saveState(){
   saveWonSet();
 }
 
+// ⬇️ MODIFIÉ : réinit quotidienne = crédits 3 + quota 0 + effacer lots gagnés
 function resetDailyCreditsKeepPrizes(){
-  // Nouvelle journée : crédits réinitialisés, on garde les ✔ gagnés
   balance = START_BALANCE;
   locked = false;
+  clearWonSet(); // efface les lots gagnés (✔)
   localStorage.setItem(STORAGE.DATE, todayStr());
   localStorage.setItem(STORAGE.WINS, "0"); // nouveau quota quotidien
   saveState();
+  renderPaytable(); // met l'UI en phase
 }
 
+// ⬇️ Inchangé de principe mais aligne le même comportement
 function hardResetAllWithPassword(){
-  // Reset manuel : crédits + effacement des lots gagnés
   balance = START_BALANCE;
   locked = false;
-  clearWonSet();                    // ✔ efface les lots gagnés
+  clearWonSet(); // efface les lots gagnés
   localStorage.setItem(STORAGE.DATE, todayStr());
   localStorage.setItem(STORAGE.WINS, "0");
   saveState();
+  renderPaytable();
 }
 
 /***********************
@@ -201,11 +204,11 @@ function loadStateOrInit(){
 
   if (!inited){
     localStorage.setItem(STORAGE.INIT,"1");
-    resetDailyCreditsKeepPrizes(); // première init : crédits 3, pas de lots
+    resetDailyCreditsKeepPrizes(); // première init
     return;
   }
 
-  // Changement de date → réinit crédits MAIS on garde les lots gagnés
+  // Changement de date → réinit (crédits + quota + efface lots)
   if (lastDate && lastDate !== today){
     resetDailyCreditsKeepPrizes();
     setStatus("Nouvelle journée : crédits réinitialisés !");
@@ -441,7 +444,7 @@ async function doSpin(){
 }
 
 /***********************
- *  MODALE RESET (au reload uniquement, ou via ton propre déclencheur)
+ *  MODALE RESET (au reload ou via bouton admin si tu en ajoutes un)
  ***********************/
 function showResetModal(){
   if (!resetModal) return;
@@ -491,7 +494,7 @@ function tryResetWithPassword(pass){
   setStatus(locked ? "Retente ta chance la prochaine fois !" : "Bonne chance !", locked ? "error" : "info");
   if (spinBtn) spinBtn.disabled = busy || (!locked && balance<1);
 
-  // ✨ Afficher la modale au rechargement si jeu verrouillé (solde=0)
+  // Afficher la modale au rechargement si jeu verrouillé (solde=0)
   if (isReload() && balance === 0 && localStorage.getItem(STORAGE.LOCKED) === "1") {
     showResetModal();
   }
@@ -513,7 +516,7 @@ if (autoplayChk){
   });
 }
 if (resetForm){
-  // La modale peut être utilisée au reload (ci-dessus) ou depuis un bouton admin de ton choix
+  // La modale est utilisée au reload (ci-dessus) ou depuis un éventuel bouton admin
   resetForm.addEventListener("submit", e=>{ e.preventDefault(); tryResetWithPassword(resetPass.value); });
 }
 if (resetCancel){
