@@ -3,7 +3,7 @@
  ***********************/
 const ROWS = 3, REELS = 3;
 const SPIN_BASE_MS = 1800, SPIN_DELTA_MS = 180; // timings des rouleaux
-const START_BALANCE = 6;
+const START_BALANCE = 50;
 const PASS_DEFAULT = "test"; // mot de passe par défaut
 
 // Redirection quand le solde arrive à 0 (bouton principal)
