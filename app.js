@@ -22,9 +22,9 @@ const SYMBOLS = [
   { icon: "img/image9.png",  name: "Symbole 9",  prize: "Lot 9"  },
   // { icon: "img/image10.png", name: "Symbole 10", prize: "Lot 10" },
   { icon: "img/image11.png", name: "Symbole 11", prize: "Lot 11" },
-  { icon: "img/image12.png", name: "Symbole 12", prize: "Lot 12" },
+  //{ icon: "img/image12.png", name: "Symbole 12", prize: "Lot 12" },
   // { icon: "img/image13.png", name: "Symbole 13", prize: "Lot 13" },
-  { icon: "img/image14.png", name: "Symbole 14", prize: "Lot 14" },
+  //{ icon: "img/image14.png", name: "Symbole 14", prize: "Lot 14" },
   // { icon: "img/image15.png", name: "Symbole 15", prize: "Lot 15" },
   { icon: "img/image16.png", name: "Symbole 16", prize: "Lot 16" },
   { icon: "img/image17.png", name: "Symbole 17", prize: "Lot 17" },
@@ -32,7 +32,7 @@ const SYMBOLS = [
 ];
 
 // Probabilités en %, alignées sur SYMBOLS (somme = 100)
-// Catégories : Exclus (0), Récurrent (16), Fréquents (14/12), Diverses (10/8), Rares (4/2)
+// Catégories : Exclus (0), Récurrent (18), Fréquents (14/12), Diverses (10/8), Rares (4/2)
 const WEIGHTS = [
    4, // Symbole 1   — 4%  (Rares)
   12, // Symbole 2   — 12% (Fréquents)
@@ -41,13 +41,13 @@ const WEIGHTS = [
   // 0, // Symbole 5   — 0%  (Exclus)
   // 0, // Symbole 6   — 0%  (Exclus)
    8, // Symbole 7   — 8%  (Diverses)
-  16, // Symbole 8   — 16% (Récurrent)
-  16, // Symbole 9   — 16% (Récurrent)
+  18, // Symbole 8   — 18% (Récurrent)
+  18, // Symbole 9   — 18% (Récurrent)
   // 0, // Symbole 10  — 0%  (Exclus)
   14, // Symbole 11  — 14% (Fréquents)
-   2, // Symbole 12  — 2%  (Rares)
+  // 0, // Symbole 12  — 0%  (Exclus)
   // 0, // Symbole 13  — 0%  (Exclus)
-   2, // Symbole 14  — 2%  (Rares)
+  // 0, // Symbole 14  — 0%  (Exclus)
   // 0, // Symbole 15  — 0%  (Exclus)
    8, // Symbole 16  — 8%  (Diverses)
    4, // Symbole 17  — 4%  (Rares)
